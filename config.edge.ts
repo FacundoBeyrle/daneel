@@ -1,7 +1,7 @@
 import type { AppConfig } from "./lib/edge/types.ts";
 
 import { prompt } from "./prompts/movie-critic.ts";
-// import { prompt } from "./prompts/tour-guide.ts";
+// import { prompt as TourPrompt } from "./prompts/tour-guide.ts";
 
 export const appConfig: AppConfig = {
   // This should be set in an environment variable
