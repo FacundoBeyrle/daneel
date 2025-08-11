@@ -4,8 +4,17 @@ import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
+import { getCookie } from "../utils/cookies";
 
 export default function Index() {
+
+  const [condition, setCondition] = useState<string | null>(null);
+
+  // Read the cookie after the page loads
+  useEffect(() => {
+    const cond = getCookie("study_cond");
+    setCondition(cond ?? "CONTROL"); // fallback if no cookie found
+  }, []);
   // The content of the box where the user is typing
   const [message, setMessage] = useState<string>("");
 
@@ -43,7 +52,7 @@ export default function Index() {
   }, [state]);
 
   return (
-    <App title="Experiment title header">
+    <App title={`Experiment condition: ${condition}`}>
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
         <section className="overflow-y-auto flex-grow mb-4 pb-8">
           <div className="flex flex-col space-y-4">
