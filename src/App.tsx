@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { Head } from "@impalajs/react/head";
+import { ConditionContext } from "../utils/CondContext";
 
 interface AppProps {
   title: string;
@@ -14,12 +15,14 @@ export const App: React.FC<React.PropsWithChildren<AppProps>> = ({
 }) => {
   return (
     <>
+    <ConditionContext.Provider value={condition}>
       <Head>
         <title>{`${title} ${condition}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Create your own AI chat bot" />
       </Head>
       {children}
+    </ConditionContext.Provider>
     </>
   );
 };
