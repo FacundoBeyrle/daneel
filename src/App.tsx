@@ -15,7 +15,7 @@ export const App: React.FC<React.PropsWithChildren<AppProps>> = ({
 }) => {
   return (
     <>
-    <ConditionContext.Provider value={condition}>
+    <ConditionContext.Provider value={condition ?? "CONTROL"}>
       <Head>
         <title>{`${title} ${condition}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
