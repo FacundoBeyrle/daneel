@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { Head } from "@impalajs/react/head";
-import { ConditionContext } from "../utils/CondContext";
+import { ConditionContext } from "./utils/CondContext";
 
 interface AppProps {
   title: string;
