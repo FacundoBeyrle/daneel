@@ -52,7 +52,7 @@ export default function Index() {
   }, [state]);
 
   return (
-    <App title={`Experiment condition: ${condition}`}>
+    <App title="Experiment condition:" condition={condition}>
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
         <section className="overflow-y-auto flex-grow mb-4 pb-8">
           <div className="flex flex-col space-y-4">
