@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { ConditionContext } from "../utils/CondContext";
 import Lottie from "lottie-react";
 
-
-
 interface AvatarProps {
   condition?: string | null;
 }
@@ -15,7 +13,7 @@ export const Avatar: React.FC<AvatarProps> = ({ condition }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [avatarType, setAvatarType] = useState<"human" | "robot" | null>(null);
     
-    // Determine which avatar to display based on the condition
+  // Determine which avatar to display based on the condition
   useEffect(() => {
     if (activeCondition === "ANTHROPOMORPHIC") {
       setAvatarType("human");
