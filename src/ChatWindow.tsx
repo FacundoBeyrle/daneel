@@ -3,6 +3,7 @@ import { ChatMessage } from "./components/ChatMessage";
 import { Welcome } from "./components/Welcome";
 import { Avatar } from "./components/Avatar";
 import { SuggestedFollowUps } from "./components/SuggestedFollowUps";
+import { SocialPresenceIndicator } from "./components/SocialPresenceIndicator";
 
 interface ChatWindowProps {
   chatHistory: { content: string; role: string }[];
@@ -45,17 +46,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   inputRef,
 }) => {
   const showAvatar = condition === "ANTHROPOMORPHIC";
+  const showSurveyLink = chatHistory.length >= 10; // adjust threshold
+  const encodedCondition = btoa(condition ?? "");
 
   return (
     <div className="flex w-full h-full">
       {showAvatar && (
-  <div className="w-[120px] flex-shrink-0">
-    <Avatar
-      condition={condition}
-      animationState={mapChatStateToAnimation(state)}
-    />
-  </div>
-)}
+        <div className="w-[120px] flex-shrink-0">
+          <Avatar
+            condition={condition}
+            animationState={mapChatStateToAnimation(state)}
+          />
+        </div>
+      )}
 
       {/* Chat area */}
       <div className="flex flex-col flex-grow h-full">
@@ -64,7 +67,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             {chatHistory.length === 0 ? (
               <>
                 <Welcome />
-                {/* Sample phrases */}
               </>
             ) : (
               chatHistory.map((chat, i) => (
@@ -73,6 +75,34 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             )}
 
             {currentMessage && <ChatMessage message={currentMessage as any} />}
+
+            {showSurveyLink && (
+              <div className="mt-4 p-2 bg-yellow-100 rounded-lg text-center">
+                {/* Optional alert once */}
+                {(() => {
+                  if (!window.sessionStorage.getItem("surveyAlertShown")) {
+                    alert("Please continue to the next part of the survey after finishing your conversation.");
+                    window.sessionStorage.setItem("surveyAlertShown", "true");
+                  }
+                })()}
+
+                <a
+                  {/* TODO: Replace with correct link; figure out hidden data collection field in Google Forms */}
+                  href={`https://docs.google.com/forms/d/e/FORM_ID/viewform?usp=pp_url&entry.1234567890=${encodedCondition}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-700 underline font-medium"
+                  onClick={() => window.sessionStorage.setItem("surveyClicked", "true")}
+                >
+                  Continue to the next part of the survey
+                </a>
+
+                {/* Fallback reminder if they haven’t clicked yet */}
+                {!window.sessionStorage.getItem("surveyClicked") && (
+                  <p className="text-sm text-gray-600 mt-1">Click the link above to proceed to the next survey section.</p>
+                )}
+              </div>
+            )}
 
             {/* Suggested follow-ups go here */}
             <SuggestedFollowUps
@@ -102,43 +132,57 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {/* Input bar */}
         <section className="bg-gray-100 rounded-lg p-2">
           <form
-            className="flex"
+            className="flex items-center w-full"
             onSubmit={(e) => {
               e.preventDefault();
               sendMessage(message, chatHistory);
               setMessage("");
             }}
           >
-            {chatHistory.length > 1 ? (
-              <button
-                className="bg-gray-100 text-gray-600 py-2 px-4 rounded-l-lg"
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  clear();
-                  setMessage("");
+          {chatHistory.length > 1 && (
+            <button
+              className="bg-gray-100 text-gray-600 py-2 px-4 rounded-l-lg"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                clear();
+                setMessage("");
                 }}
-              >
-                Clear
-              </button>
-            ) : null}
-            <input
-              type="text"
-              ref={inputRef}
-              className="w-full rounded-l-lg p-2 outline-none"
-              placeholder={state === "idle" ? "Type your message..." : "..."}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              disabled={state !== "idle"}
-            />
-            {state === "idle" ? (
+            >
+              Clear
+            </button>
+          )}
+
+            {/* Input + SocialPresenceIndicator wrapper */}
+            <div className="flex flex-grow items-center relative">
+              <input
+                type="text"
+                ref={inputRef}
+                className="flex-grow rounded-l-lg p-2 outline-none"
+                placeholder={state === "idle" ? "Type your message..." : "..."}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                disabled={state !== "idle"}
+              />
+
+              {/* Social presence indicator placed inside input wrapper */}
+              {condition === "SOCPRESENCE" && (
+                <SocialPresenceIndicator
+                  condition={condition}
+                  state={state}
+                  className="absolute right-2" // adjust position inside wrapper
+                />
+              )}
+            </div>
+
+            {state === "idle" && (
               <button
                 className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
                 type="submit"
               >
                 Send
               </button>
-            ) : null}
+            )}
           </form>
         </section>
       </div>

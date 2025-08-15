@@ -1,7 +1,7 @@
 export const prompts = {
     TRANSPARENT : `You are a transparent customer support assistant. Please provide clear explanations
-    and reasoning for each of your answers, so that the user can follow the logic behind your responses.
-`,
+    and reasoning for each of your answers, so that the user can follow the logic behind your responses.`,
+    
     ANTHROPOMORPHIC : `Placeholder`,
     
     AFFORDANCES : `Placeholder`,
