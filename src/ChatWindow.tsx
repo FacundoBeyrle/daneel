@@ -2,6 +2,7 @@ import React from "react";
 import { ChatMessage } from "./components/ChatMessage";
 import { Welcome } from "./components/Welcome";
 import { Avatar } from "./components/Avatar";
+import { SuggestedFollowUps } from "./components/SuggestedFollowUps";
 
 interface ChatWindowProps {
   chatHistory: { content: string; role: string }[];
@@ -72,6 +73,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             )}
 
             {currentMessage && <ChatMessage message={currentMessage as any} />}
+
+            {/* Suggested follow-ups go here */}
+            <SuggestedFollowUps
+              condition={condition}
+              sendMessage={sendMessage}
+              chatHistory={chatHistory.map(msg => ({
+              role: msg.role === "assistant" ? "assistant" : "user",
+              content: msg.content}))}
+            />
           </div>
 
           <div ref={bottomRef} />
