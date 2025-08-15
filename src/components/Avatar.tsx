@@ -1,56 +1,79 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, useFBX, useAnimations } from "@react-three/drei";
 import { ConditionContext } from "../utils/CondContext";
-import Lottie from "lottie-react";
+import * as THREE from "three";
 
 interface AvatarProps {
   condition?: string | null;
+  animationState?: "Idle" | "Talking" | "Thinking";
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ condition }) => {
+function CharacterWithAnimations({
+  animationState = "Idle",
+}: {
+  animationState?: "Idle" | "Talking" | "Thinking";
+}) {
+  // Load base character (with skin)
+  const character = useFBX("/models/character.fbx");
+
+  // Load animations (without skin)
+  const idle = useFBX("/models/idle.fbx");
+  const talking = useFBX("/models/talking.fbx");
+  const thinking = useFBX("/models/thinking.fbx");
+
+  // Extract animation clips
+  const clips = [
+    idle.animations[0],
+    talking.animations[0],
+    thinking.animations[0],
+  ];
+
+  // Map animation names to clips for easier access
+  const { actions } = useAnimations(clips, character);
+
+  useEffect(() => {
+    if (!actions) return;
+
+    // Stop all animations first
+    Object.values(actions).forEach((action) => action?.stop());
+
+    // Play the requested animation
+    const action = actions[animationState];
+    if (action) {
+      action.reset().fadeIn(0.3).play();
+    }
+  }, [animationState, actions]);
+
+  return <primitive object={character as THREE.Object3D} scale={0.01} position={[0, -1.5, 0]} />;
+}
+
+export const Avatar: React.FC<AvatarProps> = ({
+  condition,
+  animationState = "Idle",
+}) => {
   const contextCondition = useContext(ConditionContext);
   const activeCondition = condition ?? contextCondition;
 
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [avatarType, setAvatarType] = useState<"human" | "robot" | null>(null);
-    
-  // Determine which avatar to display based on the condition
-  useEffect(() => {
-    if (activeCondition === "ANTHROPOMORPHIC") {
-      setAvatarType("human");
-    } else {
-      setAvatarType(null); // no avatar for control/other conditions
-    }
-  }, [activeCondition]);
-
-  // Example animation: simple idle loop
-  useEffect(() => {
-    if (avatarType) {
-      const interval = setInterval(() => {
-        setIsAnimating((prev) => !prev); // toggles animation state
-      }, 1000); // switch every second
-      return () => clearInterval(interval);
-    }
-  }, [avatarType]);
-
-  if (!avatarType) return null;
+  if (activeCondition !== "ANTHROPOMORPHIC") return null;
 
   return (
     <div
-      className={`avatar-container ${avatarType}`}
       style={{
-        width: "120px",
-        height: "300px", // taller to match chat height
-        backgroundColor: avatarType === "human" ? "#FFDAB9" : "#B0C4DE",
-        borderRadius: "10px",
+        width: "250px",
+        height: "100%",
         marginRight: "1rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        transition: "all 0.3s ease",
-        transform: isAnimating ? "translateY(-5px)" : "translateY(0)",
       }}
     >
-      {avatarType === "human" ? "🧑" : "🤖"}
+      <Canvas camera={{ position: [0, 1.5, 3], fov: 30 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[0, 5, 5]} intensity={0.8} />
+        <CharacterWithAnimations animationState={animationState} />
+        <OrbitControls enablePan={false} enableZoom={false} />
+      </Canvas>
     </div>
   );
 };

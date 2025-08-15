@@ -6,7 +6,7 @@ import { Avatar } from "./components/Avatar";
 interface ChatWindowProps {
   chatHistory: { content: string; role: string }[];
   currentMessage: { content: string; role: string };
-  state: string;
+  state: "idle" | "waiting" | "loading";
   sendMessage: (msg: string, history: any[]) => void;
   cancel: () => void;
   clear: () => void;
@@ -16,6 +16,19 @@ interface ChatWindowProps {
   bottomRef?: React.RefObject<HTMLDivElement>;
   inputRef?: React.RefObject<HTMLInputElement>;
 }
+
+const mapChatStateToAnimation = (state: "idle" | "waiting" | "loading"): "Idle" | "Thinking" | "Talking" => {
+  switch (state) {
+    case "idle":
+      return "Idle";
+    case "waiting":
+      return "Thinking";
+    case "loading":
+      return "Talking";
+    default:
+      return "Idle"; // fallback for safety
+  }
+};
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   chatHistory,
@@ -35,10 +48,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   return (
     <div className="flex w-full h-full">
       {showAvatar && (
-        <div className="w-[120px] flex-shrink-0">
-          <Avatar condition={condition} />
-        </div>
-      )}
+  <div className="w-[120px] flex-shrink-0">
+    <Avatar
+      condition={condition}
+      animationState={mapChatStateToAnimation(state)}
+    />
+  </div>
+)}
 
       {/* Chat area */}
       <div className="flex flex-col flex-grow h-full">
